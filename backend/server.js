@@ -1,8 +1,8 @@
-import express from 'express';
-import cors from 'cors';
-import { config } from 'dotenv';
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
 
-config();
+dotenv.config();
 const app = express();
 const port = 3000;
 
@@ -19,5 +19,5 @@ app.get('/', (req, res)=>{
 })
 
 app.listen(port, ()=>{
-    console.log('SERcer started');
+    console.log('server started');
 })
