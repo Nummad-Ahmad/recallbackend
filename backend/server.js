@@ -7,7 +7,7 @@ const app = express();
 const port = 3000;
 
 const corsOptions = {
-    origin: process.env.frontendurl,
+    origin: process.env.frontendUrl || 'https://recallchatbot.vercel.app',
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
 };
