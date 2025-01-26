@@ -44,6 +44,9 @@ app.post('/login', async (req, res) => {
 });
 
 app.post('/signup', async (req, res) => {
+    const currentTime = new Date();
+    const futureTime = new Date(currentTime);
+    futureTime.setDate(currentTime.getDate() + 7);
     const { email, password } = req.body;
     try {
         const existingUser = await userModel.findOne({ email });
@@ -51,7 +54,7 @@ app.post('/signup', async (req, res) => {
             return res.status(400).json({ error: 'Email already exists' });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await userModel.create({ email, password: hashedPassword });
+        const newUser = await userModel.create({ email, password: hashedPassword, type: 'trial', date:  currentTime, endTime: futureTime});
         res.status(201).json(newUser);
     } catch (error) {
         console.error('Error:', error);
