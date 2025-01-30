@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
-const {userModel, pdfModel} = require('./models/users');
+const userModel = require('./models/users');
+const pdfModel = require('./models/users');
 // const mongoURI = 'mongodb://localhost:27017/users';
 const bcrypt = require('bcrypt');
 const mongoURI = 'mongodb+srv://nummad:12345@cluster0.ceymr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
@@ -42,6 +43,22 @@ app.post('/login', async (req, res) => {
         res.status(500).json({ error: 'An error occurred while processing your request' });
     }
 });
+
+app.post("/savepdf", async (req, res) => {
+    try {
+        const { url } = req.body;
+        if (!url) {
+            return res.status(400).json({ error: "PDF URL is required" });
+        }
+        const newPdf = new pdfModel({ url });
+        await newPdf.save();
+        res.status(201).json({ message: "PDF URL saved successfully", pdfUrl: newPdf.url });
+    } catch (error) {
+        console.error("Error saving PDF URL:", error);
+        res.status(500).json({ error: "Failed to save PDF URL" });
+    }
+});
+
 
 app.post('/signup', async (req, res) => {
     const currentTime = new Date();
