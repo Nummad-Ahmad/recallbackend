@@ -3,7 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const userModel = require('./models/users');
-const pdfModel = require('./models/users');
+const pdfModel = require('./models/pdfs');
 // const mongoURI = 'mongodb://localhost:27017/users';
 const bcrypt = require('bcrypt');
 const mongoURI = 'mongodb+srv://nummad:12345@cluster0.ceymr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
