@@ -7,6 +7,10 @@ const pdfModel = require('./models/users');
 // const mongoURI = 'mongodb://localhost:27017/users';
 const bcrypt = require('bcrypt');
 const mongoURI = 'mongodb+srv://nummad:12345@cluster0.ceymr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const multer = require('multer');
+const cloudinary = require('./config');
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 dotenv.config();
 const app = express();
@@ -44,20 +48,27 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.post("/savepdf", async (req, res) => {
+app.post('/upload', upload.single('pdf'), async (req, res) => {
     try {
-        const { url } = req.body;
-        if (!url) {
-            return res.status(400).json({ error: "PDF URL is required" });
+      const file = req.file;
+      if (!file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+      const result = await cloudinary.uploader.upload_stream(
+        { resource_type: 'raw', folder: 'pdf_uploads' },
+        async (error, result) => {
+          if (error) return res.status(500).json({ message: 'Upload failed', error });
+          const newPDF = new PDF({ url: result.secure_url });
+          await newPDF.save();
+          res.status(201).json({ url: result.secure_url });
         }
-        const newPdf = new pdfModel({ url });
-        await newPdf.save();
-        res.status(201).json({ message: "PDF URL saved successfully", pdfUrl: newPdf.url });
-    } catch (error) {
-        console.error("Error saving PDF URL:", error);
-        res.status(500).json({ error: "Failed to save PDF URL" });
+      );
+  
+      result.end(file.buffer);
+    } catch (err) {
+      res.status(500).json({ message: 'Server Error', error: err.message });
     }
-});
+  });
 
 
 app.post('/signup', async (req, res) => {
