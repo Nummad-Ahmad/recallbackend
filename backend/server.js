@@ -69,7 +69,7 @@ app.post('/upload', upload.single('pdf'), async (req, res) => {
             );
             uploadStream.end(file.buffer);
         });
-        const newPDF = new pdfModel({ url: result.secure_url, filename, date: currentDate, status: 'Active' });
+        const newPDF = new pdfModel({ url: result.secure_url, name: filename, date: currentDate, status: 'Active' });
         await newPDF.save();
         res.status(201).json({ message: "PDF uploaded successfully", url: result.secure_url, filename });
     } catch (err) {
