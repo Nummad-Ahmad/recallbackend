@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const pdfSchema = new mongoose.Schema({
     name: String,
     url: String,
-    date: Date,
+    date: String,
     status: String
 });
 
