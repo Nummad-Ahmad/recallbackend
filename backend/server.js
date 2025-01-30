@@ -51,24 +51,31 @@ app.post('/login', async (req, res) => {
 app.post('/upload', upload.single('pdf'), async (req, res) => {
     try {
         const file = req.file;
+        const filename = req.body.filename; 
         if (!file) {
             return res.status(400).json({ message: "No file uploaded" });
         }
         const result = await new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
-                { resource_type: "raw", folder: "pdf_uploads", format: "pdf", },
+                { 
+                    resource_type: "raw", 
+                    folder: "pdf_uploads", 
+                    format: "pdf",
+                    public_id: filename 
+                },
                 (error, result) => (error ? reject(error) : resolve(result))
             );
             uploadStream.end(file.buffer);
         });
-        const newPDF = new pdfModel({ url: result.secure_url });
+        const newPDF = new pdfModel({ url: result.secure_url, filename });
         await newPDF.save();
-        res.status(201).json({ message: "PDF uploaded successfully", url: result.secure_url });
+        res.status(201).json({ message: "PDF uploaded successfully", url: result.secure_url, filename });
     } catch (err) {
         console.error("Upload error:", err);
         res.status(500).json({ message: "Server Error", error: err.message });
     }
-  });
+});
+
 
 
 app.post('/signup', async (req, res) => {
