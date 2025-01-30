@@ -49,25 +49,27 @@ app.post('/login', async (req, res) => {
 });
 
 app.post('/upload', upload.single('pdf'), async (req, res) => {
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    const currentDate = new Date().toLocaleDateString('en-GB', options);
     try {
         const file = req.file;
-        const filename = req.body.filename; 
+        const filename = req.body.filename;
         if (!file) {
             return res.status(400).json({ message: "No file uploaded" });
         }
         const result = await new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
-                { 
-                    resource_type: "raw", 
-                    folder: "pdf_uploads", 
+                {
+                    resource_type: "raw",
+                    folder: "pdf_uploads",
                     format: "pdf",
-                    public_id: filename 
+                    public_id: filename
                 },
                 (error, result) => (error ? reject(error) : resolve(result))
             );
             uploadStream.end(file.buffer);
         });
-        const newPDF = new pdfModel({ url: result.secure_url, filename });
+        const newPDF = new pdfModel({ url: result.secure_url, filename, date: currentDate, status: 'Active' });
         await newPDF.save();
         res.status(201).json({ message: "PDF uploaded successfully", url: result.secure_url, filename });
     } catch (err) {
@@ -89,7 +91,7 @@ app.post('/signup', async (req, res) => {
             return res.status(400).json({ error: 'Email already exists' });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await userModel.create({ email, password: hashedPassword, type: 'trial', date:  currentTime, endTime: futureTime});
+        const newUser = await userModel.create({ email, password: hashedPassword, type: 'trial', date: currentTime, endTime: futureTime });
         res.status(201).json(newUser);
     } catch (error) {
         console.error('Error:', error);
