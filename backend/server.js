@@ -28,6 +28,20 @@ app.use(express.json());
 app.get('/', (req, res) => {
     res.send('Backend deployed successfully');
 })
+app.get('/pdf', async (req, res) => {
+    try {
+        const pdfs = await pdfModel.find();
+
+        if (!pdfs || pdfs.length === 0) {
+            return res.status(404).json({ message: "No PDFs found" });
+        }
+
+        res.status(200).json({ message: "PDFs fetched successfully", data: pdfs });
+    } catch (err) {
+        console.error("Error fetching PDFs:", err);
+        res.status(500).json({ message: "Server Error", error: err.message });
+    }
+});
 
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
