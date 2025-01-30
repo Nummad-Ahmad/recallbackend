@@ -113,7 +113,19 @@ app.post('/signup', async (req, res) => {
     }
 });
 
-
+app.delete('/delete/:id', async (req, res) => {
+    try {
+        const deletedRecord = await pdfModel.findByIdAndDelete(req.params.id);
+        
+        if (!deletedRecord) {
+            return res.status(404).json({ message: 'Record not found' });
+        }
+        
+        res.json({ message: 'Record deleted successfully', deletedRecord });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting record', error });
+    }
+});
 
 
 mongoose.connect(mongoURI)
