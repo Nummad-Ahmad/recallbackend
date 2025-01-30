@@ -50,23 +50,23 @@ app.post('/login', async (req, res) => {
 
 app.post('/upload', upload.single('pdf'), async (req, res) => {
     try {
-      const file = req.file;
-      if (!file) {
-        return res.status(400).json({ message: 'No file uploaded' });
-      }
-      const result = await cloudinary.uploader.upload_stream(
-        { resource_type: 'raw', folder: 'pdf_uploads' },
-        async (error, result) => {
-          if (error) return res.status(500).json({ message: 'Upload failed', error });
-          const newPDF = new PDF({ url: result.secure_url });
-          await newPDF.save();
-          res.status(201).json({ url: result.secure_url });
+        const file = req.file;
+        if (!file) {
+            return res.status(400).json({ message: "No file uploaded" });
         }
-      );
-  
-      result.end(file.buffer);
+        const result = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+                { resource_type: "raw", folder: "pdf_uploads", format: "pdf", },
+                (error, result) => (error ? reject(error) : resolve(result))
+            );
+            uploadStream.end(file.buffer);
+        });
+        const newPDF = new pdfModel({ url: result.secure_url });
+        await newPDF.save();
+        res.status(201).json({ message: "PDF uploaded successfully", url: result.secure_url });
     } catch (err) {
-      res.status(500).json({ message: 'Server Error', error: err.message });
+        console.error("Upload error:", err);
+        res.status(500).json({ message: "Server Error", error: err.message });
     }
   });
 
