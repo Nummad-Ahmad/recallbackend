@@ -26,7 +26,8 @@ const corsOptions = {
 };
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ limit: '20mb', extended: true }));
 
 app.get('/', (req, res) => {
     res.send('Backend deployed successfully');
@@ -80,7 +81,8 @@ app.post('/upload', upload.single('pdf'), async (req, res) => {
                     resource_type: "raw",
                     folder: "pdf_uploads",
                     format: "pdf",
-                    public_id: filename
+                    public_id: filename,
+                    chunk_size: 20 * 1024 * 1024,
                 },
                 (error, result) => (error ? reject(error) : resolve(result))
             );
